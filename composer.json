@@ -1,0 +1,25 @@
+{
+    "name": "geeksareforlife/resource-safe-cache",
+    "description": "",
+    "type": "library",
+    "homepage": "https://github.com/geeksareforlife/resource-safe-cache",
+    "require": {
+        "psr/cache": "^1.0.0",
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "require-dev": {
+        "symfony/cache": "^4.0.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "James Hayward",
+            "email": "jhayward1980@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "GeeksAreForLife\\ResourceSafeCache\\": "src/"
+        }
+    }
+}
