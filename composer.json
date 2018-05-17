@@ -1,8 +1,8 @@
 {
-    "name": "geeksareforlife/resource-safe-cache",
+    "name": "geeksareforlife/safe-cache",
     "description": "",
     "type": "library",
-    "homepage": "https://github.com/geeksareforlife/resource-safe-cache",
+    "homepage": "https://github.com/geeksareforlife/SafeCache",
     "require": {
         "psr/cache": "^1.0.0",
         "guzzlehttp/guzzle": "^6.3"
@@ -19,7 +19,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "GeeksAreForLife\\ResourceSafeCache\\": "src/"
+            "GeeksAreForLife\\SafeCache\\": "src/"
         }
     }
 }

@@ -5,22 +5,28 @@
  * php example.php
  */
 
+use GeeksAreForLife\SafeCache\SafeCacheItemPool;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use GeeksAreForLife\ResourceSafeCache\PSR6ResourceSafeCache;
 
 require('vendor/autoload.php');
 
-// The PSR6 implementation needs a cache passed to it
+
+
+// The PSR6 implementation needs a cache passed to it, using Symfony's cache here
 // If you can, use dependancy injection on the
-// GeeksAreForLife\ResourceSafeCache\ResourceSafeCache
+// GeeksAreForLife\SafeCache\SafeCache
 // interface
 $cache = new FilesystemAdapter();
-$rsc = new PSR6ResourceSafeCache($cache);
+$rsc = new SafeCacheItemPool($cache);
 
 // for the purposes of this example, clear the cache
 $cache->clear();
 
-// the first time we ask for a resource it will need to go and get it
+$item = $rsc->getItem("test");
+
+
+
+/*// the first time we ask for a resource it will need to go and get it
 $start_time = microtime(true);
 echo($rsc->getResource('https://www.geeksareforlife.com/test/cache-test.txt') . "\n");
 $time = microtime(true) - $start_time;
@@ -79,4 +85,4 @@ echo("Took " . number_format($time, 10) . " seconds\n");
 $start_time = microtime(true);
 echo($rsc->getResource('https://www.geeksareforlife.com/test/cache-404.txt') . "\n");
 $time = microtime(true) - $start_time;
-echo("Took " . number_format($time, 10) . " seconds\n");
+echo("Took " . number_format($time, 10) . " seconds\n");*/
