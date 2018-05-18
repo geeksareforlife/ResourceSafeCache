@@ -8,7 +8,8 @@
         "guzzlehttp/guzzle": "^6.3"
     },
     "require-dev": {
-        "symfony/cache": "^4.0.0"
+        "symfony/cache": "^4.0.0",
+        "phpunit/phpunit": "^7.1"
     },
     "license": "MIT",
     "authors": [

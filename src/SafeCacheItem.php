@@ -6,13 +6,13 @@ use Psr\Cache\CacheItemInterface;
 
 final class SafeCacheItem implements SafeCacheItemInterface
 {
-    private $item;
+    private $primary;
 
     private $backup;
 
-    function __construct(CacheItemInterface $item, CacheItemInterface $backup)
+    function __construct(CacheItemInterface $primary, CacheItemInterface $backup)
     {
-        $this->item = $item;
+        $this->primary = $primary;
 
         $this->backup = $backup;
     }
@@ -28,7 +28,7 @@ final class SafeCacheItem implements SafeCacheItemInterface
      */
     public function getKey()
     {
-        return $this->item->getKey();
+        return $this->primary->getKey();
     }
 
     /**
@@ -45,7 +45,7 @@ final class SafeCacheItem implements SafeCacheItemInterface
      */
     public function get()
     {
-        return $this->item->get();
+        return $this->primary->get();
     }
 
     /**
@@ -63,7 +63,12 @@ final class SafeCacheItem implements SafeCacheItemInterface
      */
     public function getMostRecent()
     {
-
+        $value = $this->backup->get();
+        if ($this->backup->isHit()) {
+            return $value;
+        } else {
+            throw new ItemNotCachedException(sprintf('Item "%s" has no backup in the cache', $this->getKey()));
+        }
     }
 
     /**
@@ -77,7 +82,7 @@ final class SafeCacheItem implements SafeCacheItemInterface
      */
     public function isHit()
     {
-        return $this->item->isHit();
+        return $this->primary->isHit();
     }
 
     /**
@@ -95,7 +100,10 @@ final class SafeCacheItem implements SafeCacheItemInterface
      */
     public function set($value)
     {
+        $this->primary->set($value);
+        $this->backup->set($value);
 
+        return $this;
     }
 
     /**
@@ -112,7 +120,9 @@ final class SafeCacheItem implements SafeCacheItemInterface
      */
     public function expiresAt($expiration)
     {
-        return $this->item->expiresAt($expiration);
+        $this->primary->expiresAt($expiration);
+
+        return $this;
     }
 
     /**
@@ -130,6 +140,18 @@ final class SafeCacheItem implements SafeCacheItemInterface
      */
     public function expiresAfter($time)
     {
-        return $this->item->expiresAfter($time);
+        $this->primary->expiresAfter($time);
+
+        return $this;
+    }
+
+    public function getPrimary()
+    {
+        return $this->primary;
+    }
+
+    public function getBackup()
+    {
+        return $this->backup;
     }
 }

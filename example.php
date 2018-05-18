@@ -22,9 +22,26 @@ $rsc = new SafeCacheItemPool($cache);
 // for the purposes of this example, clear the cache
 $cache->clear();
 
-$item = $rsc->getItem("test");
+$item = $rsc->getItem("test1");
+$item->set("Hello World");
+$rsc->save($item);
 
+for ($i = 0; $i < 4; $i++) {
+    $test = $rsc->getItem("test1");
+    $value = $test->get();
+    if ($test->isHit()) {
+        var_dump($value);
+    } else {
+        try {
+            var_dump($test->getMostRecent());
+        } catch (Psr\Cache\CacheException $e) {
+            var_dump($e->getMessage());
+        }
+    }
 
+    unset($test);
+    sleep(30);
+}
 
 /*// the first time we ask for a resource it will need to go and get it
 $start_time = microtime(true);

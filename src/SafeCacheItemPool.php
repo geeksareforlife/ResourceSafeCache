@@ -38,18 +38,9 @@ final class SafeCacheItemPool implements Cache
     public function getItem($key)
     {
         // get the item from the underlying cache
-        $item = $this->cache->getItem($key);
+        $primary = $this->cache->getItem($key);
 
-        // if this is a new item, we want to pre-set the expiration
-        if (!$item->isHit()) {
-            $item->expiresAfter($this->defaultExpiration);
-        }
-
-        // now get the backup item
-        $backup = $this->cache->getItem($this->getBackupKey($key));
-
-        // return a SafeCacheItem
-        return new SafeCacheItem($item, $backup);
+        return $this->getSafeCacheItem($primary);
     }
 
     /**
@@ -70,7 +61,30 @@ final class SafeCacheItemPool implements Cache
      */
     public function getItems(array $keys = array())
     {
+        // get the item from the underlying cache
+        $primaries = $this->cache->getItems($keys);
 
+        $items = [];
+
+        foreach ($primaries as $key => $primary) {
+            $items[$key] = $this->getSafeCacheItem($primary);
+        }
+
+        return $items;
+    }
+
+    private function getSafeCacheItem($primary)
+    {
+        // if this is a new item, we want to pre-set the expiration
+        if (!$primary->isHit()) {
+            $primary->expiresAfter($this->defaultExpiration);
+        }
+
+        // now get the backup item
+        $backup = $this->cache->getItem($this->getBackupKey($primary->getKey()));
+
+        // return a SafeCacheItem
+        return new SafeCacheItem($primary, $backup);
     }
 
     /**
@@ -117,10 +131,10 @@ final class SafeCacheItemPool implements Cache
      */
     public function deleteItem($key)
     {
-        $itemReturn = $this->cache->deleteItem($key);
+        $primaryReturn = $this->cache->deleteItem($key);
         $backupReturn = $this->cache->deleteItem($this->getBackupKey($key));
 
-        if ($itemReturn && $backupReturn) {
+        if ($primaryReturn && $backupReturn) {
             return true;
         } else {
             return false;
@@ -142,10 +156,10 @@ final class SafeCacheItemPool implements Cache
      */
     public function deleteItems(array $keys)
     {
-        $itemReturn = $this->cache->deleteItems($keys);
+        $primaryReturn = $this->cache->deleteItems($keys);
         $backupReturn = $this->cache->deleteItems($this->getBackupKeys($keys));
 
-        if ($itemReturn && $backupReturn) {
+        if ($primaryReturn && $backupReturn) {
             return true;
         } else {
             return false;
@@ -163,7 +177,14 @@ final class SafeCacheItemPool implements Cache
      */
     public function save(CacheItemInterface $item)
     {
+        $primaryReturn = $this->cache->save($item->getPrimary());
+        $backupReturn = $this->cache->save($item->getBackup());
 
+        if ($primaryReturn && $backupReturn) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -177,7 +198,14 @@ final class SafeCacheItemPool implements Cache
      */
     public function saveDeferred(CacheItemInterface $item)
     {
+        $primaryReturn = $this->cache->saveDeferred($item->getPrimary());
+        $backupReturn = $this->cache->saveDeferred($item->getBackup());
 
+        if ($primaryReturn && $backupReturn) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -188,13 +216,13 @@ final class SafeCacheItemPool implements Cache
      */
     public function commit()
     {
-
+        return $this->cache->commit();
     }
 
     private function getBackupKey($key)
     {
         // there is a chance of collisions here...
-        return "SafeCache." . $key;
+        return "SafeCacheNoExpire." . $key;
     }
 
     private function getBackupKeys($keys)
