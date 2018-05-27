@@ -4,6 +4,7 @@
     "type": "library",
     "homepage": "https://github.com/geeksareforlife/SafeCache",
     "require": {
+        "php": ">=7.0",
         "psr/cache": "^1.0.0",
         "guzzlehttp/guzzle": "^6.3"
     },
